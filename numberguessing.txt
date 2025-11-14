@@ -1,0 +1,161 @@
+import tkinter as tk from tkinter 
+import messagebox from tkinter 
+import ttk import random class 
+NumberGuessingGameGUI:  
+def __init__(self, root):  
+self.root = root         
+self.root.title("🎯 
+Number Guessing Game")         
+self.root.geometry("400x420")         self.theme = 
+"blue"  # Change theme here
+         self.colors = {  
+"light": {"bg": "#ffffff", "fg": "#000000", "button": "#f0f0f0", "entry": "#ffffff"},  
+"dark": {"bg": "#2e2e2e", "fg": "#ffffff", "button": "#444444", "entry": "#55555  
+"green": {"bg": "#d4edda", "fg": "#155724", "button": "#c3e6cb", "entry": "#e2f0d9"},  
+"blue": {"bg": "#dceeff", "fg": "#003366", "button": "#a8d1ff", "entry": "#ffffff"}  
+}  
+self.reset_main_screen()     
+def apply_theme(self):  
+theme = self.colors[self.theme         
+self.root.configure(bg=theme["bg"])
+ widget in self.root.winfo_children():  
+cls = widget.winfo_class()             
+if cls in ["Label", "Button"]:  
+         for 
+widget.configure(bg=theme["bg"], fg=theme["fg"])                 
+if cls == "Button":  
+widget.configure(bg=theme["button"], activebackground=theme["button"])  
+ 
+elif cls == "Entry":  
+fg=theme["fg"], 
+widget.configure(bg=theme["entry"], 
+insertbackground=theme["fg"])  
+elif cls == "Frame":  
+widget.configure(bg=theme["bg"])  
+def reset_main_screen(self):         
+widget in self.root.winfo_children():  
+widget.destroy()  
+for 
+self.welcome_label = tk.Label(self.root, text="🎮 Welcome to Number Guessing Game 
+ 
+ ", font=("Helvetica", 16, "bold"))         
+self.welcome_label.pack(pady=10)  
+self.fade_in_label(self.welcome_label)  
+tk.Label(self.root, text="🔢 Enter number of digits:").pack()  
+self.num_digits_entry = tk.Entry(self.root)  
+self.num_digits_entry.pack()  
+tk.Label(self.root, text="🎯 Enter maximum number of guesses:").pack()  
+self.max_guesses_entry = tk.Entry(self.root)  
+self.max_guesses_entry.pack()  
+tk.Button(self.root, text="🚀 Start Game", command=self.start_game).pack(pady=10)  
+self.apply_theme()  
+def fade_in_label(self, label, alpha=0):  
+if alpha <= 1.0:  
+label.configure(fg=f"#{int(alpha * 255):02x}{int(alpha * 255):02x}{int(alpha * 
+255):02x}") self.root.after(50, self.fade_in_label, 
+label, alpha + 0.05)     
+
+def start_game(self):  
+num_digits = self.num_digits_entry.get()  
+max_guesses = self.max_guesses_entry.get()  
+if not num_digits.isdigit() or int(num_digits) <= 0:  
+messagebox.showerror("❌ Invalid Input", "Number of digits must be a positive 
+integer.")  
+return  
+if not max_guesses.isdigit() or int(max_guesses) < int(num_digits):  
+messagebox.showerror("❌ Invalid Input", "Maximum guesses must be ≥ number of digits.")  
+return  
+self.num_digits = int(num_digits)  
+self.max_guesses = int(max_guesses)  
+self.number_to_guess = ''.join(random.choices('123456789', k=self.num_digits))  
+self.guessed_number = ['_'] * self.num_digits  
+self.attempts = 0  
+self.score = 100  # Score starts at 100  
+self.setup_game_screen()  
+def 
+setup_game_screen(self):         
+for widget in self.root.winfo_children():  
+widget.destroy()  
+tk.Label(self.root, text=f"🔍 Guess the {self.num_digits}-digit number!", font=("Helvetica", 
+14)).pack(pady=10)  
+self.status_label 
+= tk.Label(self.root, text=f"🧩 Guessed: {' 
+'.join(self.guessed_number)}", font=("Courier", 16))  
+self.status_label.pack(pady=5)  
+self.guess_entry = tk.Entry(self.root)    
+ 
+self.guess_entry.pack()  
+self.guess_entry.focus()  
+self.attempts_label 
+= tk.Label(self.root, 
+{self.attempts}/{self.max_guesses}")  
+self.attempts_label.pack()  
+text=f"🔁 Attempts: 
+self.score_label = tk.Label(self.root, text=f"⭐ Score: {self.score}", font=("Helvetica", 12))  
+self.score_label.pack()  
+progress_frame = tk.Frame(self.root)  
+progress_frame.pack(pady=5)  
+self.progress = ttk.Progressbar(progress_frame, length=250, mode="determinate", 
+maximum=self.max_guesses)  
+self.progress.pack()  
+tk.Button(self.root, 
+text="✅ 
+command=self.check_guess).pack(pady=5)  
+self.apply_theme()  
+self.animate_blinking()  
+def animate_blinking(self):  
+Submit 
+current_color = self.status_label.cget("fg")  
+new_color = "red" if current_color != "red" else "blue"  
+self.status_label.config(fg=new_color)  
+self.root.after(500, self.animate_blinking)  
+def check_guess(self):  
+guess = self.guess_entry.get()  
+if len(guess) != 1 or not guess.isdigit() or guess == '0':  
+self.shake_widget(self.guess_entry)        
+Guess", 
+
+messagebox.showerror("⚠️ Invalid Guess", "Enter a single digit from 1 to 9.")             
+return              self.attempts += 1  
+self.score = max(0, self.score - 10)  # Deduct 10 points per attempt  
+for i in range(self.num_digits):  
+if self.number_to_guess[i] == guess and self.guessed_number[i] == '_':  
+self.guessed_number[i] = guess  
+break  
+self.status_label.config(text=f"🧩 Guessed: {' '.join(self.guessed_number)}")         
+self.attempts_label.config(text=f"🔁 Attempts: {self.attempts}/{self.max_guesses}")  
+self.score_label.config(text=f"⭐ Score: {self.score}")  
+self.progress['value'] = self.attempts  
+self.guess_entry.delete(0, tk.END)  
+if ''.join(self.guessed_number) == self.number_to_guess:  
+messagebox.showinfo("🏆 You Win!", f"🎉 You guessed it right in {self.attempts} guesses!\n🔢 
+Number: {self.number_to_guess}\n⭐ Score: {self.score}")  
+self.ask_play_again()  
+elif self.attempts >= self.max_guesses:  
+messagebox.showinfo("😢 Game Over", f"You ran out of guesses.\n🔢 The number was: 
+{self.number_to_guess}\n⭐ Score: {self.score}")  
+self.ask_play_again()  
+def shake_widget(self, widget):  
+def shake(count=0):  
+if count < 6:  
+x = -5 if count % 2 == 0 else 5  
+widget.place_configure(x=widget.winfo_x() + x)  
+self.root.after(50, shake, count + 1)  
+else:  
+                
+                      widget.place_configure(x=widget.winfo_x() - 5)  # Reset position  
+  
+        widget.place(x=widget.winfo_x(), y=widget.winfo_y())  
+        shake()  
+  
+    def ask_play_again(self):  
+        if messagebox.askyesno("🔄 Play Again", "Do you want to play again?"):  
+            self.reset_main_screen()  
+        else:  
+            self.root.destroy()  
+  
+# Run the GUI if __name__ 
+== "__main__":  
+    root = tk.Tk()  
+    game = NumberGuessingGameGUI(root)  
+    root.mainloop()  
